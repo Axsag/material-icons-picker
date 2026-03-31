@@ -1,5 +1,5 @@
 /*!
- * material-symbols-picker.js  v1.0.0
+ * material-symbols-picker.js  v1.0.1
  * Zero-dependency icon picker for the Material Symbols variable font.
  *
  * USAGE
