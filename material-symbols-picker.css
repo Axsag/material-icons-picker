@@ -1,0 +1,384 @@
+/* ==========================================================================
+   material-symbols-picker.css  v2.0
+   https://github.com/your-org/material-symbols-picker
+   ========================================================================== */
+
+/* ── Wrapper ──────────────────────────────────────────────────────────────── */
+
+.msp-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* ── CSS custom properties ────────────────────────────────────────────────── */
+/*
+   Applied on both .msp-trigger and .msp-panel so each instance is independent.
+   Light theme is the default; add [data-msp-theme="dark"] for dark mode.
+   Override any variable in your own stylesheet to customise.
+*/
+
+.msp-trigger,
+.msp-panel {
+  --msp-accent:       #6366f1;
+  --msp-accent-ring:  rgba(99, 102, 241, 0.15);
+  --msp-bg:           #ffffff;
+  --msp-surface:      #f8fafc;
+  --msp-border:       #e2e8f0;
+  --msp-divider:      #f1f5f9;
+  --msp-text:         #0f172a;
+  --msp-muted:        #64748b;
+  --msp-subtle:       #94a3b8;
+  --msp-hover:        #f1f5f9;
+  --msp-selected-bg:  rgba(99, 102, 241, 0.1);
+  --msp-selected-fg:  #4f46e5;
+  --msp-shadow:       0 4px 6px -1px rgba(0,0,0,.07), 0 20px 40px -8px rgba(0,0,0,.12);
+}
+
+.msp-trigger[data-msp-theme="dark"],
+.msp-panel[data-msp-theme="dark"] {
+  --msp-bg:           #1e1e2e;
+  --msp-surface:      #181825;
+  --msp-border:       #313244;
+  --msp-divider:      #24243e;
+  --msp-text:         #cdd6f4;
+  --msp-muted:        #9399b2;
+  --msp-subtle:       #6c7086;
+  --msp-hover:        #313244;
+  --msp-selected-bg:  rgba(99, 102, 241, 0.2);
+  --msp-selected-fg:  #a5b4fc;
+  --msp-shadow:       0 4px 6px -1px rgba(0,0,0,.3), 0 20px 40px -8px rgba(0,0,0,.5);
+}
+
+/* ── Trigger button ───────────────────────────────────────────────────────── */
+
+.msp-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--msp-bg);
+  border: 1.5px solid var(--msp-border);
+  border-radius: 8px;
+  min-width: 180px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--msp-text);
+}
+
+.msp-trigger:focus-visible,
+.msp-trigger.is-open {
+  border-color: var(--msp-accent);
+  box-shadow: 0 0 0 3px var(--msp-accent-ring);
+}
+
+.msp-trigger-icon {
+  color: var(--msp-accent);
+  flex-shrink: 0;
+  line-height: 1;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+}
+
+.msp-trigger-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msp-trigger-label[data-empty] {
+  color: var(--msp-subtle);
+}
+
+.msp-trigger-caret {
+  font-family: "Material Symbols Outlined";
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
+  font-size: 18px;
+  line-height: 1;
+  font-style: normal;
+  color: var(--msp-subtle);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.msp-trigger.is-open .msp-trigger-caret {
+  transform: rotate(180deg);
+}
+
+/* ── Panel ────────────────────────────────────────────────────────────────── */
+
+.msp-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 99999;
+  width: 312px;
+  background: var(--msp-bg);
+  border: 1px solid var(--msp-border);
+  border-radius: 12px;
+  box-shadow: var(--msp-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Animate in */
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.msp-panel.is-visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: all;
+}
+
+/* ── Search row ───────────────────────────────────────────────────────────── */
+
+.msp-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--msp-divider);
+}
+
+.msp-search-icon {
+  font-family: "Material Symbols Outlined";
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
+  font-size: 16px;
+  line-height: 1;
+  font-style: normal;
+  color: var(--msp-subtle);
+  flex-shrink: 0;
+}
+
+.msp-search {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--msp-text);
+  font-size: 13px;
+  font-family: inherit;
+  caret-color: var(--msp-accent);
+  min-width: 0;
+}
+
+.msp-search::placeholder {
+  color: var(--msp-subtle);
+}
+
+.msp-count {
+  font-size: 11px;
+  color: var(--msp-subtle);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Filter row ───────────────────────────────────────────────────────────── */
+
+.msp-filter-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--msp-divider);
+  overflow: hidden;
+}
+
+.msp-filter-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--msp-border);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+/* Pill buttons */
+
+.msp-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--msp-border);
+  background: transparent;
+  color: var(--msp-muted);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.6;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+
+.msp-pill:hover {
+  border-color: var(--msp-accent);
+  color: var(--msp-accent);
+}
+
+.msp-pill.is-active {
+  background: var(--msp-accent);
+  border-color: var(--msp-accent);
+  color: #fff;
+}
+
+/* Theme toggle */
+
+.msp-theme-btn {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--msp-border);
+  background: transparent;
+  color: var(--msp-muted);
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  /* Material icon rendering */
+  font-family: "Material Symbols Outlined";
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 20;
+  font-size: 14px;
+  line-height: 1;
+  font-style: normal;
+}
+
+.msp-theme-btn:hover {
+  border-color: var(--msp-accent);
+  color: var(--msp-accent);
+}
+
+/* ── Category row ─────────────────────────────────────────────────────────── */
+
+.msp-category-row {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--msp-divider);
+}
+
+.msp-category-select {
+  width: 100%;
+  background: var(--msp-surface);
+  border: 1px solid var(--msp-border);
+  border-radius: 6px;
+  color: var(--msp-text);
+  font-size: 12px;
+  font-family: inherit;
+  padding: 4px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+
+.msp-category-select:focus {
+  border-color: var(--msp-accent);
+}
+
+/* ── Icon grid ────────────────────────────────────────────────────────────── */
+
+.msp-grid {
+  max-height: 228px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--msp-border) transparent;
+}
+
+.msp-grid::-webkit-scrollbar        { width: 4px; }
+.msp-grid::-webkit-scrollbar-track  { background: transparent; }
+.msp-grid::-webkit-scrollbar-thumb  { background: var(--msp-border); border-radius: 4px; }
+
+/* Virtual rows */
+.msp-grid-spacer { position: relative; width: 100%; }
+.msp-grid-row    { position: absolute; left: 0; display: flex; gap: 2px; }
+
+/* Icon cells */
+.msp-icon-btn {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--msp-muted);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s, transform 0.1s;
+}
+
+.msp-icon-btn:hover {
+  background: var(--msp-hover);
+  color: var(--msp-text);
+  transform: scale(1.12);
+}
+
+.msp-icon-btn.is-selected {
+  background: var(--msp-selected-bg);
+  color: var(--msp-selected-fg);
+}
+
+/* ── States ───────────────────────────────────────────────────────────────── */
+
+.msp-empty,
+.msp-loading {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--msp-subtle);
+  font-size: 12px;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+
+.msp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--msp-divider);
+  min-height: 38px;
+}
+
+.msp-footer-name {
+  font-size: 12px;
+  color: var(--msp-selected-fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.1s;
+}
+
+.msp-footer-name[data-empty] {
+  color: var(--msp-subtle);
+}
+
+.msp-clear-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--msp-border);
+  color: var(--msp-muted);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.msp-clear-btn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
