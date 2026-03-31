@@ -1,5 +1,5 @@
 /*!
- * material-symbols-picker.js  v2.0
+ * material-symbols-picker.js  v1.0.0
  * Zero-dependency icon picker for the Material Symbols variable font.
  *
  * USAGE
@@ -27,6 +27,7 @@
  *   picker.setTheme(theme)   'light' | 'dark' | 'auto'
  *   picker.destroy()
  *   MaterialSymbolsPicker.init(selector, opts) → instances[]
+ *
  */
 
 (function (root, factory) {
