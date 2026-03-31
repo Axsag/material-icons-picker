@@ -27,6 +27,10 @@ The library automatically handles its own CSS injection and links the necessary 
 ```html
 <script src="material-symbols-picker.js"></script>
 ```
+You can also get it from jsdelivr:
+```html
+<script src="https://cdn.jsdelivr.net/gh/Axsag/material-icons-picker@latest/material-symbols-picker.js"></script>
+```
 
 ### 2. Auto-initialization
 The simplest way to start is by adding a `data-icon-picker` attribute to your input elements:
