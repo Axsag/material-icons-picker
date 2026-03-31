@@ -302,6 +302,7 @@
             placeholder="${this._s.searchPlaceholder}"
             aria-label="${this._s.searchLabel}">
           <span class="msp-count"></span>
+          <button type="button" class="msp-theme-btn" aria-label="Toggle theme"></button>
         </div>
         <div class="msp-filter-row">
           <button type="button" class="msp-pill" data-variant="outlined">Outlined</button>
@@ -310,7 +311,6 @@
           <div class="msp-filter-sep"></div>
           <button type="button" class="msp-pill" data-fill="0">Line</button>
           <button type="button" class="msp-pill" data-fill="1">Fill</button>
-          <button type="button" class="msp-theme-btn" aria-label="Toggle theme"></button>
         </div>
         <div class="msp-category-row" hidden></div>
         <div class="msp-grid" role="listbox" aria-label="${this._s.searchLabel}"></div>
