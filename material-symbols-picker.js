@@ -81,42 +81,39 @@
   /* ── Google Fonts metadata fetch (shared across all instances) ─────────── */
   let _iconCache = null;        // { icons: IconMeta[], categories: string[] }
   let _fetchPromise = null;     // in-flight promise
-
-  /**
-   * Fetch icon metadata from Google Fonts.
-   * Response format: )]}'↵{...json}  (XSSI prefix to strip)
-   * Each icon: { name, categories[], tags[], popularity }
-   */
+  
   function _fetchGoogleIcons() {
-    if (_iconCache)    return Promise.resolve(_iconCache);
+    if (_iconCache) return Promise.resolve(_iconCache);
     if (_fetchPromise) return _fetchPromise;
 
-    _fetchPromise = fetch('https://fonts.google.com/metadata/icons')
-      .then(r => {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.text();
-      })
-      .then(text => {
-        // Strip XSSI prefix  )]}'↵
-        const json = JSON.parse(text.replace(/^\)\]\}'\n/, ''));
+    const url = new URL('https://cdn.jsdelivr.net/gh/Axsag/material-icons-picker@latest/material-deign-icons.json');
 
-        // Sort by popularity desc so the most-used icons appear first
-        const raw = (json.icons || []).slice().sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    _fetchPromise = fetch(url)
+        .then(r => {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(json => {
+          const raw = (json.icons || [])
+              .slice()
+              .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
 
-        const icons = raw.map(i => ({
-          name:       i.name,
-          categories: i.categories || [],
-          tags:       (i.tags || []).map(t => t.toLowerCase()),
-        }));
+          const icons = raw.map(i => ({
+            name: i.name,
+            categories: i.categories || [],
+            tags: (i.tags || []).map(t => t.toLowerCase()),
+          }));
 
-        // Build sorted unique category list
-        const catSet = new Set();
-        icons.forEach(i => i.categories.forEach(c => catSet.add(c)));
-        const categories = [...catSet].sort();
+          const catSet = new Set();
+          icons.forEach(i => i.categories.forEach(c => catSet.add(c)));
 
-        _iconCache = { icons, categories };
-        return _iconCache;
-      });
+          _iconCache = {
+            icons,
+            categories: [...catSet].sort()
+          };
+
+          return _iconCache;
+        });
 
     return _fetchPromise;
   }
