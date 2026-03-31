@@ -81,12 +81,12 @@
   /* ── Google Fonts metadata fetch (shared across all instances) ─────────── */
   let _iconCache = null;        // { icons: IconMeta[], categories: string[] }
   let _fetchPromise = null;     // in-flight promise
-  
+
   function _fetchGoogleIcons() {
     if (_iconCache) return Promise.resolve(_iconCache);
     if (_fetchPromise) return _fetchPromise;
 
-    const url = new URL('https://cdn.jsdelivr.net/gh/Axsag/material-icons-picker@latest/material-deign-icons.json');
+    const url = new URL('https://cdn.jsdelivr.net/gh/Axsag/material-icons-picker@latest/material-design-icons.json');
 
     _fetchPromise = fetch(url)
         .then(r => {
