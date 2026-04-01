@@ -28,6 +28,7 @@ The library automatically handles its own CSS injection and links the necessary 
 <script src="material-symbols-picker.js"></script>
 ```
 You can also get it from jsdelivr:
+[![jsDelivr CDN](https://img.shields.io/jsdelivr/gh/hm/Axsag/material-icons-picker)](https://www.jsdelivr.com/package/gh/Axsag/material-icons-picker)
 ```html
 <script src="https://cdn.jsdelivr.net/gh/Axsag/material-icons-picker@latest/material-symbols-picker.js"></script>
 ```
