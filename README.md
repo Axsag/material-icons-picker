@@ -12,7 +12,8 @@ This picker dynamically fetches the latest metadata directly from Google Fonts, 
 
 * 📦 **Zero Dependencies**: Pure Vanilla JS. No jQuery, no extra bloat.
 * 🌐 **Dynamic Metadata**: Fetches the official Google Fonts icon manifest so you always have the newest icons.
-* 🎨 **Variable Font Support**: Toggle between **Outlined**, **Rounded**, and **Sharp** variants natively.
+* 🎨 **Variable Font Support**: Toggle between **Outlined**, **Rounded**, and **Sharp** variants natively. Restrict to a subset with the `variants` option — only the fonts you actually need are fetched.
+* 🙈 **Broken Icon Filtering**: Icons present in metadata but missing from the font file are automatically detected and hidden.
 * 🌓 **Smart Theming**: Built-in Light and Dark modes, plus `auto` mode (follows system settings).
 * ⚡ **High Performance**: Optimized rendering and virtual-style logic to handle the massive icon set smoothly.
 * 🔍 **Smart Search**: Search by icon name or descriptive tags (e.g., searching "home" or "house").
@@ -48,9 +49,10 @@ If you need more control or want to react to changes:
 ```javascript
 const el = document.getElementById('my-input');
 const picker = new MaterialSymbolsPicker(el, {
-    variant: 'rounded',   // 'outlined' | 'rounded' | 'sharp'
-    theme: 'auto',        // 'light' | 'dark' | 'auto'
-    fill: 0,              // 0 or 1
+    variant:  'rounded',               // 'outlined' | 'rounded' | 'sharp'
+    variants: ['outlined', 'rounded'], // which variants to offer in the UI
+    theme:    'auto',                  // 'light' | 'dark' | 'auto'
+    fill:     0,                       // 0 or 1
     onChange: (name) => {
         console.log('Selected Icon:', name);
     }
@@ -61,13 +63,15 @@ const picker = new MaterialSymbolsPicker(el, {
 
 | Option | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `variant` | `string` | `'outlined'` | The Material Symbols style: `'outlined'`, `'rounded'`, or `'sharp'`. |
+| `variant` | `string` | `'outlined'` | The active Material Symbols style: `'outlined'`, `'rounded'`, or `'sharp'`. |
+| `variants` | `string[]` | `['outlined','rounded','sharp']` | Which variants to offer in the picker UI. When only one is given the variant pills are hidden and only that font is fetched. |
 | `fill` | `number` | `0` | Fill axis (0 for stroke, 1 for solid). |
 | `weight` | `number` | `400` | Font weight (100 through 700). |
 | `grade` | `number` | `0` | Weight fine-tuning (-25, 0, 200). |
 | `size` | `number` | `24` | Icon size in pixels for the trigger preview. |
 | `theme` | `string` | `'auto'` | Color mode: `'light'`, `'dark'`, or `'auto'`. |
 | `fetchIcons`| `boolean`| `true` | Fetch the full metadata from Google (false uses a small fallback list). |
+| `icons` | `string[]` | `null` | Provide a custom icon list directly, skipping the fetch entirely. |
 | `onChange` | `function`| `null` | Callback function: `(name) => { ... }`. |
 
 ---
@@ -95,3 +99,25 @@ new MaterialSymbolsPicker(el, {
     clear: 'Clear'
   }
 });
+```
+
+---
+
+## 🎨 Variant control
+
+By default the picker offers all three variants via toggle pills. You can narrow this down:
+
+```javascript
+// Lock to a single variant — pills disappear, only Rounded is fetched
+new MaterialSymbolsPicker(el, {
+  variant:  'rounded',
+  variants: ['rounded'],
+});
+
+// Offer two variants — only those two fonts are fetched
+new MaterialSymbolsPicker(el, {
+  variants: ['outlined', 'sharp'],
+});
+```
+
+When `variants` contains only one entry the variant pill row is hidden entirely and only that font family is requested from Google Fonts, saving one unnecessary network request.

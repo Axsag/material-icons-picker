@@ -10,6 +10,7 @@
  *
  * OPTIONS
  *   variant     'outlined' | 'rounded' | 'sharp'    default: 'outlined'
+ *   variants    string[] – which variants to offer   default: ['outlined','rounded','sharp']
  *   fill        0 | 1                               default: 0
  *   weight      100 – 700                           default: 400
  *   grade       -25 | 0 | 200                       default: 0
@@ -102,8 +103,7 @@
     const ctx      = _measureCanvas.getContext('2d');
     const fontSize = 18;
     ctx.font       = `400 ${fontSize}px '${family}'`;
-
-    const threshold = fontSize * 1.6;   // valid glyph ≈ 18 px; bare text >> 18 px
+    const threshold = fontSize * 1.6;
     const broken    = new Set();
     for (const icon of icons) {
       if (ctx.measureText(icon.name).width > threshold) broken.add(icon.name);
@@ -112,63 +112,36 @@
     return broken;
   }
 
-  function _fetchGoogleIcons() {
-    if (_iconCache) return Promise.resolve(_iconCache);
-    if (_fetchPromise) return _fetchPromise;
+  /* ── Per-variant Google Fonts injection (deduped across instances) ─────── */
+  const _loadedFontVariants = new Set();
 
-    const url = new URL('https://cdn.jsdelivr.net/gh/Axsag/material-icons-picker@latest/material-design-icons.json');
+  function _injectFontsForVariants(variants) {
+    const needed = [...new Set(['outlined', ...variants])]
+        .filter(v => !_loadedFontVariants.has(v));
+    if (!needed.length) return;
+    needed.forEach(v => _loadedFontVariants.add(v));
 
-    _fetchPromise = fetch(url)
-        .then(r => {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
-        })
-        .then(json => {
-          const raw = (json.icons || [])
-              .slice()
-              .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    const familyMap = {
+      outlined: 'Material+Symbols+Outlined',
+      rounded:  'Material+Symbols+Rounded',
+      sharp:    'Material+Symbols+Sharp',
+    };
+    const params = needed
+        .map(v => `family=${familyMap[v]}:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200`)
+        .join('&');
 
-          const icons = raw.map(i => ({
-            name: i.name,
-            categories: i.categories || [],
-            tags: (i.tags || []).map(t => t.toLowerCase()),
-          }));
-
-          const catSet = new Set();
-          icons.forEach(i => i.categories.forEach(c => catSet.add(c)));
-
-          _iconCache = {
-            icons,
-            categories: [...catSet].sort()
-          };
-
-          return _iconCache;
-        });
-
-    return _fetchPromise;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.dataset.mspFonts = needed.join(',');
+    link.href = `https://fonts.googleapis.com/css2?${params}&display=block`;
+    document.head.appendChild(link);
   }
 
-  /* ── One-time style injection (if CSS file not already loaded) ─────────── */
+  /* ── One-time CSS injection ──────────────────────────────────────────── */
   const STYLE_SENTINEL = 'msp-styles-loaded';
   let _stylesInjected = false;
 
-  function _injectGoogleFontsLink() {
-    if (document.querySelector('link[data-msp-fonts]')) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.dataset.mspFonts = '';
-    link.href =
-      'https://fonts.googleapis.com/css2?'
-      + 'family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
-      + '&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
-      + '&family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
-      + '&display=block';
-    document.head.appendChild(link);
-  }
   function _injectStyles() {
-    _injectGoogleFontsLink();
-
-    // If the CSS file was included externally, don't inject again
     if (_stylesInjected || document.querySelector('.' + STYLE_SENTINEL)) return;
     _stylesInjected = true;
 
@@ -225,18 +198,18 @@
   /* ── Font-family helper ───────────────────────────────────────────────── */
   function _fontFamily(variant) {
     return (
-      variant === 'rounded' ? 'Material Symbols Rounded' :
-      variant === 'sharp'   ? 'Material Symbols Sharp'   :
-                              'Material Symbols Outlined'
+        variant === 'rounded' ? 'Material Symbols Rounded' :
+            variant === 'sharp'   ? 'Material Symbols Sharp'   :
+                'Material Symbols Outlined'
     );
   }
 
   function _iconCss(opts, size) {
     const sz = size != null ? size : opts.size;
     return (
-      `font-family:'${_fontFamily(opts.variant)}';`
-      + `font-variation-settings:'FILL' ${opts.fill},'wght' ${opts.weight},'GRAD' ${opts.grade},'opsz' ${sz};`
-      + `font-size:${sz}px;line-height:1;font-style:normal;-webkit-font-smoothing:antialiased;`
+        `font-family:'${_fontFamily(opts.variant)}';`
+        + `font-variation-settings:'FILL' ${opts.fill},'wght' ${opts.weight},'GRAD' ${opts.grade},'opsz' ${sz};`
+        + `font-size:${sz}px;line-height:1;font-style:normal;-webkit-font-smoothing:antialiased;`
     );
   }
 
@@ -244,9 +217,8 @@
   function _resolveTheme(theme) {
     if (theme === 'dark')  return 'dark';
     if (theme === 'light') return 'light';
-    // 'auto' — follow OS
     return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-      ? 'dark' : 'light';
+        ? 'dark' : 'light';
   }
 
   /* ════════════════════════════════════════════════════════════════════════
@@ -256,11 +228,11 @@
     constructor(el, opts = {}) {
       _injectStyles();
 
-      // If bound to a native <input>, hide it and read its current value
       this._nativeInput = el.tagName === 'INPUT' ? el : null;
 
       this.opts = {
         variant:    'outlined',
+        variants:   ['outlined', 'rounded', 'sharp'],
         fill:       0,
         weight:     400,
         grade:      0,
@@ -273,19 +245,30 @@
         ...opts,
       };
 
-      this._s      = { ...DEFAULT_STRINGS, ...this.opts.strings }; // i18n strings
+      // Normalize variants — must be a non-empty array of known values
+      const VALID_VARIANTS = ['outlined', 'rounded', 'sharp'];
+      this.opts.variants = (this.opts.variants || []).filter(v => VALID_VARIANTS.includes(v));
+      if (!this.opts.variants.length) this.opts.variants = ['outlined'];
+
+      // Active variant must be in the allowed set; fall back to first
+      if (!this.opts.variants.includes(this.opts.variant)) {
+        this.opts.variant = this.opts.variants[0];
+      }
+
+      // Inject only the font families this instance actually needs
+      _injectFontsForVariants(this.opts.variants);
+
+      this._s      = { ...DEFAULT_STRINGS, ...this.opts.strings };
       this._value  = this._nativeInput?.value || '';
       this._open   = false;
       this._theme  = _resolveTheme(this.opts.theme);
 
-      // Icon data — populated after fetch or immediately from opts.icons
-      this._allIcons   = [];  // { name, categories, tags }[]
-      this._categories = [];  // string[]
-      this._filtered   = [];  // subset of _allIcons currently shown
+      this._allIcons   = [];
+      this._categories = [];
+      this._filtered   = [];
 
-      // Virtual scroll state
       this._cols = 8;
-      this._rowH = 34; // 32px cell + 2px gap
+      this._rowH = 34;
 
       this._build();
       this._bindEvents();
@@ -294,10 +277,9 @@
 
     /* ── Build DOM ──────────────────────────────────────────────────────── */
     _build() {
-      // Wrapper
       const wrap = document.createElement('div');
       wrap.className = 'msp-wrap';
-      wrap.classList.add('msp-fonts-pending');   // hidden until font ready
+      wrap.classList.add('msp-fonts-pending');
 
       if (this._nativeInput) {
         this._nativeInput.parentNode.insertBefore(wrap, this._nativeInput);
@@ -318,6 +300,15 @@
       `;
       wrap.appendChild(this._trigger);
 
+      const showVariantPills = this.opts.variants.length > 1;
+      const variantPillsHtml = showVariantPills
+          ? this.opts.variants.map(v =>
+          `<button type="button" class="msp-pill" data-variant="${v}">${
+              v.charAt(0).toUpperCase() + v.slice(1)
+          }</button>`
+      ).join('') + '<div class="msp-filter-sep"></div>'
+          : '';
+
       // Panel
       this._panel = document.createElement('div');
       this._panel.className = 'msp-panel';
@@ -333,10 +324,7 @@
           <button type="button" class="msp-theme-btn" aria-label="Toggle theme"></button>
         </div>
         <div class="msp-filter-row">
-          <button type="button" class="msp-pill" data-variant="outlined">Outlined</button>
-          <button type="button" class="msp-pill" data-variant="rounded">Rounded</button>
-          <button type="button" class="msp-pill" data-variant="sharp">Sharp</button>
-          <div class="msp-filter-sep"></div>
+          ${variantPillsHtml}
           <button type="button" class="msp-pill" data-fill="0">Line</button>
           <button type="button" class="msp-pill" data-fill="1">Fill</button>
         </div>
@@ -358,7 +346,6 @@
       this._themeBtn    = this._panel.querySelector('.msp-theme-btn');
       this._categoryRow = this._panel.querySelector('.msp-category-row');
 
-      // Sync active pills with initial opts
       this._syncPillStates();
       this._applyTheme();
       this._updateTrigger();
@@ -366,17 +353,15 @@
 
     /* ── Events ─────────────────────────────────────────────────────────── */
     _bindEvents() {
-      // Trigger open/close
       this._trigger.addEventListener('click', () => this._toggle());
       this._trigger.addEventListener('keydown', e => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._toggle(); }
         if (e.key === 'Escape') this._close();
       });
 
-      // Search
       this._searchEl.addEventListener('input', () => this._applyFilters());
 
-      // Variant pills
+      // Variant pills (querySelectorAll returns [] when none exist — safe)
       this._panel.querySelectorAll('[data-variant]').forEach(btn => {
         btn.addEventListener('click', () => {
           this.opts.variant = btn.dataset.variant;
@@ -397,24 +382,20 @@
         });
       });
 
-      // Theme toggle (manual override, breaks 'auto')
       this._themeBtn.addEventListener('click', () => {
         this.opts.theme = this._theme === 'dark' ? 'light' : 'dark';
         this._applyTheme();
       });
 
-      // Clear
       this._clearBtn.addEventListener('click', () => {
         this._setValue('');
         this._close();
       });
 
-      // Close on outside click
       this._outsideHandler = e => {
         if (!this._wrap.contains(e.target)) this._close();
       };
 
-      // OS dark-mode watcher (only when theme:'auto')
       if (this.opts.theme === 'auto' && window.matchMedia) {
         this._mq = window.matchMedia('(prefers-color-scheme: dark)');
         this._mqHandler = () => this._applyTheme();
@@ -446,7 +427,6 @@
         return;
       }
 
-      // Show loading message if panel is opened before fetch completes
       this._gridEl.innerHTML = `<div class="msp-loading">${this._s.loading}</div>`;
 
       Promise.all([_fetchGoogleIcons(), _waitForFonts()])
@@ -473,7 +453,7 @@
     }
 
     _setIconData(icons, categories) {
-      this._sourceIcons = icons;                                      // full unfiltered list
+      this._sourceIcons = icons;
       const broken      = _detectBrokenIcons(icons, this.opts.variant);
       this._allIcons    = icons.filter(i => !broken.has(i.name));
       this._categories  = categories;
@@ -481,14 +461,13 @@
 
       if (categories.length) this._buildCategorySelect();
 
-      // If the panel is already open, render
       if (this._open) {
-        this._countEl.textContent = icons.length;
+        this._countEl.textContent = this._allIcons.length;
         this._renderGrid();
       }
     }
 
-    /* ── Category select (only shown when data has categories) ───────────── */
+    /* ── Category select ─────────────────────────────────────────────────── */
     _buildCategorySelect() {
       const sel = document.createElement('select');
       sel.className = 'msp-category-select';
@@ -502,7 +481,6 @@
       this._categories.forEach(cat => {
         const opt = document.createElement('option');
         opt.value       = cat;
-        // "av" → "AV", "social" → "Social", etc.
         opt.textContent = cat.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
         sel.appendChild(opt);
       });
@@ -523,7 +501,6 @@
       this._trigger.setAttribute('aria-expanded', 'true');
       this._panel.classList.add('is-visible');
 
-      // Reset filters
       this._searchEl.value = '';
       if (this._categorySelect) this._categorySelect.value = '';
       this._filtered = [...this._allIcons];
@@ -553,9 +530,7 @@
       const cat = this._categorySelect?.value || '';
 
       this._filtered = this._allIcons.filter(icon => {
-        // Category filter
         if (cat && !icon.categories.includes(cat)) return false;
-        // Text filter — search name and tags
         if (!raw) return true;
         return icon.name.includes(q) || icon.tags.some(t => t.includes(raw));
       });
@@ -566,14 +541,13 @@
 
     /* ── Virtual grid rendering ──────────────────────────────────────────── */
     _calcCols() {
-      // Measure available width minus scrollbar (~6px) and padding (2×8px)
       const available = this._gridEl.clientWidth - 16 - 6;
       this._cols = Math.max(1, Math.floor(available / this._rowH));
     }
 
     _renderGrid() {
       const { _cols: COLS, _rowH: ROW_H, _filtered: list } = this;
-      const OVERSCAN   = 2;
+      const OVERSCAN = 2;
 
       this._countEl.textContent = list.length;
 
@@ -587,10 +561,9 @@
       const totalRows = Math.ceil(list.length / COLS);
       const totalH    = totalRows * ROW_H;
 
-      // Create scroll spacer
       this._gridEl.innerHTML = '';
       const spacer = document.createElement('div');
-      spacer.className = 'msp-grid-spacer';
+      spacer.className    = 'msp-grid-spacer';
       spacer.style.height = totalH + 'px';
       this._gridEl.appendChild(spacer);
 
@@ -600,18 +573,15 @@
         const firstRow  = Math.max(0, Math.floor(scrollTop / ROW_H) - OVERSCAN);
         const lastRow   = Math.min(totalRows - 1, Math.ceil((scrollTop + viewH) / ROW_H) + OVERSCAN);
 
-        // Remove rows outside the viewport
         spacer.querySelectorAll('.msp-grid-row').forEach(r => {
           const ri = Number(r.dataset.r);
           if (ri < firstRow || ri > lastRow) r.remove();
         });
 
-        // Collect rendered row indices
         const rendered = new Set(
             [...spacer.querySelectorAll('.msp-grid-row')].map(r => Number(r.dataset.r))
         );
 
-        // Add missing rows
         for (let r = firstRow; r <= lastRow; r++) {
           if (rendered.has(r)) continue;
 
@@ -637,7 +607,6 @@
             span.setAttribute('aria-hidden', 'true');
             btn.appendChild(span);
 
-            // Hover preview in footer (no tooltip DOM needed)
             btn.addEventListener('mouseenter', () => {
               this._footerName.textContent = icon.name.replace(/_/g, ' ');
               delete this._footerName.dataset.empty;
@@ -676,7 +645,6 @@
       this.opts.onChange?.(name);
       this._updateTrigger();
 
-      // Update footer
       this._footerName.textContent = name ? name.replace(/_/g, ' ') : '—';
       if (name) delete this._footerName.dataset.empty;
       else      this._footerName.dataset.empty = '';
@@ -721,22 +689,14 @@
        Public API
        ════════════════════════════════════════════════════════════════════ */
 
-    /** Return the currently selected icon name, or empty string. */
     getValue() { return this._value; }
-
-    /** Programmatically set the selected icon. */
     setValue(name) { this._setValue(name); }
 
-    /**
-     * Switch the colour theme.
-     * @param {'light'|'dark'|'auto'} theme
-     */
     setTheme(theme) {
       this.opts.theme = theme;
       this._applyTheme();
     }
 
-    /** Tear down the picker and restore the original element. */
     destroy() {
       this._close();
       this._mq?.removeEventListener('change', this._mqHandler);
@@ -747,16 +707,40 @@
       this._wrap.remove();
     }
 
-    /**
-     * Convenience factory — initialise on every element matching a CSS selector.
-     * @param {string}  selector
-     * @param {object}  opts
-     * @returns {MaterialSymbolsPicker[]}
-     */
     static init(selector, opts = {}) {
       return [...document.querySelectorAll(selector)]
           .map(el => new MaterialSymbolsPicker(el, opts));
     }
+  }
+
+  function _fetchGoogleIcons() {
+    if (_iconCache) return Promise.resolve(_iconCache);
+    if (_fetchPromise) return _fetchPromise;
+
+    _fetchPromise = fetch('https://cdn.jsdelivr.net/gh/Axsag/material-icons-picker@latest/material-design-icons.json')
+        .then(r => {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(json => {
+          const raw = (json.icons || [])
+              .slice()
+              .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+
+          const icons = raw.map(i => ({
+            name:       i.name,
+            categories: i.categories || [],
+            tags:       (i.tags || []).map(t => t.toLowerCase()),
+          }));
+
+          const catSet = new Set();
+          icons.forEach(i => i.categories.forEach(c => catSet.add(c)));
+
+          _iconCache = { icons, categories: [...catSet].sort() };
+          return _iconCache;
+        });
+
+    return _fetchPromise;
   }
 
   return MaterialSymbolsPicker;

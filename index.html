@@ -140,77 +140,88 @@
 </head>
 <body>
 
-  <header>
-    <h1>Material Symbols <em>Picker</em></h1>
-    <p>Zero-dependency icon picker. Fetches ~2 600 icons from the Google Fonts API with
-       full-text tag search and category filtering. Outline / Rounded / Sharp variants,
-       Fill toggle, Light &amp; Dark themes.</p>
-  </header>
+<header>
+  <h1>Material Symbols <em>Picker</em></h1>
+  <p>Zero-dependency icon picker. Fetches ~2 600 icons from the Google Fonts API with
+    full-text tag search and category filtering. Outline / Rounded / Sharp variants,
+    selective font loading, Fill toggle, Light &amp; Dark themes. No flash on load.</p>
+</header>
 
-  <div class="demo-grid">
+<div class="demo-grid">
 
-    <!-- 1: auto theme, bound to <input> -->
-    <div class="card">
-      <p class="card-title">Auto theme · bound to &lt;input&gt;</p>
-      <div class="field">
-        <label>Icon</label>
-        <input id="p1" type="text" value="">
-      </div>
-      <div class="output-chip" id="out1">
-        <span class="empty">— no icon selected —</span>
-      </div>
+  <!-- 1: auto theme, bound to <input> -->
+  <div class="card">
+    <p class="card-title">Auto theme · all variants</p>
+    <div class="field">
+      <label>Icon</label>
+      <input id="p1" type="text" value="">
     </div>
-
-    <!-- 2: forced dark -->
-    <div class="card">
-      <p class="card-title">Dark theme · Rounded · pre-filled</p>
-      <div class="field">
-        <label>Icon</label>
-        <input id="p2" type="text" value="star">
-      </div>
-      <div class="output-chip" id="out2">
-        <span class="empty">— —</span>
-      </div>
+    <div class="output-chip" id="out1">
+      <span class="empty">— no icon selected —</span>
     </div>
-
-    <!-- 3: forced light -->
-    <div class="card">
-      <p class="card-title">Light theme · Sharp</p>
-      <div class="field">
-        <label>Icon</label>
-        <input id="p3" type="text" value="">
-      </div>
-      <div class="output-chip" id="out3">
-        <span class="empty">— no icon selected —</span>
-      </div>
-    </div>
-
-    <!-- 4: form integration (full width) -->
-    <div class="card" style="grid-column: 1 / -1">
-      <p class="card-title">Form integration — live button preview</p>
-      <div class="two-col">
-        <div class="field">
-          <label>Button label</label>
-          <input class="form-input" id="btn-label" type="text" placeholder="e.g. Save file">
-        </div>
-        <div class="field">
-          <label>Button icon</label>
-          <input id="p4" type="text" value="">
-        </div>
-      </div>
-      <div class="btn-preview" id="btn-out">
-        <span id="btn-icon" class="ic" hidden></span>
-        <span id="btn-text">Button</span>
-      </div>
-    </div>
-
   </div>
 
-  <!-- Usage reference -->
-  <section class="usage">
-    <h2>Usage</h2>
-    <pre><span class="cm">&lt;!-- 1. Include CSS + JS --&gt;</span>
-<span class="kw">&lt;link</span> rel=<span class="str">"stylesheet"</span> href=<span class="str">"material-symbols-picker.css"</span><span class="kw">&gt;</span>
+  <!-- 2: forced dark, rounded only -->
+  <div class="card">
+    <p class="card-title">Dark theme · Rounded only — no variant pills</p>
+    <div class="field">
+      <label>Icon</label>
+      <input id="p2" type="text" value="star">
+    </div>
+    <div class="output-chip" id="out2">
+      <span class="empty">— —</span>
+    </div>
+  </div>
+
+  <!-- 3: light, outlined + sharp only -->
+  <div class="card">
+    <p class="card-title">Light theme · Outlined &amp; Sharp only</p>
+    <div class="field">
+      <label>Icon</label>
+      <input id="p3" type="text" value="">
+    </div>
+    <div class="output-chip" id="out3">
+      <span class="empty">— no icon selected —</span>
+    </div>
+  </div>
+
+  <!-- 4: sharp only, auto theme -->
+  <div class="card">
+    <p class="card-title">Auto theme · Sharp only — no variant pills</p>
+    <div class="field">
+      <label>Icon</label>
+      <input id="p5" type="text" value="settings">
+    </div>
+    <div class="output-chip" id="out5">
+      <span class="empty">— —</span>
+    </div>
+  </div>
+
+  <!-- 5: form integration (full width) -->
+  <div class="card" style="grid-column: 1 / -1">
+    <p class="card-title">Form integration — live button preview</p>
+    <div class="two-col">
+      <div class="field">
+        <label>Button label</label>
+        <input class="form-input" id="btn-label" type="text" placeholder="e.g. Save file">
+      </div>
+      <div class="field">
+        <label>Button icon · Outlined &amp; Rounded</label>
+        <input id="p4" type="text" value="">
+      </div>
+    </div>
+    <div class="btn-preview" id="btn-out">
+      <span id="btn-icon" class="ic" hidden></span>
+      <span id="btn-text">Button</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Usage reference -->
+<section class="usage">
+  <h2>Usage</h2>
+  <pre><span class="cm">&lt;!-- 1. Include the script --&gt;</span>
 <span class="kw">&lt;script</span> src=<span class="str">"material-symbols-picker.js"</span><span class="kw">&gt;&lt;/script&gt;</span>
 
 <span class="cm">// 2a. Auto-init</span>
@@ -218,10 +229,11 @@ MaterialSymbolsPicker.<span class="fn">init</span>(<span class="str">'[data-icon
 
 <span class="cm">// 2b. Manual</span>
 <span class="kw">const</span> picker = <span class="kw">new</span> <span class="fn">MaterialSymbolsPicker</span>(inputEl, {
-  variant:    <span class="str">'rounded'</span>,   <span class="cm">// 'outlined' | 'rounded' | 'sharp'</span>
-  fill:       <span class="str">0</span>,           <span class="cm">// 0 | 1</span>
-  theme:      <span class="str">'auto'</span>,      <span class="cm">// 'light' | 'dark' | 'auto'</span>
-  fetchIcons: <span class="str">true</span>,       <span class="cm">// fetch from Google Fonts API (default true)</span>
+  variant:    <span class="str">'rounded'</span>,              <span class="cm">// active style: 'outlined' | 'rounded' | 'sharp'</span>
+  variants:   [<span class="str">'outlined'</span>, <span class="str">'rounded'</span>], <span class="cm">// which styles to offer (omit = all three)</span>
+  fill:       <span class="str">0</span>,                     <span class="cm">// 0 | 1</span>
+  theme:      <span class="str">'auto'</span>,                <span class="cm">// 'light' | 'dark' | 'auto'</span>
+  fetchIcons: <span class="str">true</span>,                 <span class="cm">// fetch from Google Fonts API (default true)</span>
   onChange:   <span class="fn">(name) =&gt;</span> console.<span class="fn">log</span>(name),
 
   <span class="cm">// i18n — override any string</span>
@@ -239,61 +251,75 @@ picker.<span class="fn">getValue</span>();        <span class="cm">// → 'home'
 picker.<span class="fn">setValue</span>(<span class="str">'star'</span>);  <span class="cm">// set programmatically</span>
 picker.<span class="fn">setTheme</span>(<span class="str">'dark'</span>); <span class="cm">// 'light' | 'dark' | 'auto'</span>
 picker.<span class="fn">destroy</span>();         <span class="cm">// tear down</span></pre>
-  </section>
+</section>
 
-  <!-- The plugin (auto-injects styles, so CSS link above is optional) -->
-  <script src="material-symbols-picker.js"></script>
-  <script>
-    // ── Helpers ──────────────────────────────────────────────────────
-    const iconFont = (name, variant = 'outlined') =>
-      `font-family:'Material Symbols Outlined';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20;font-size:18px;line-height:1;font-style:normal;-webkit-font-smoothing:antialiased;`;
+<!-- The plugin (auto-injects styles, so CSS link above is optional) -->
+<script src="material-symbols-picker.js"></script>
+<script>
+  // ── Helpers ──────────────────────────────────────────────────────
+  function iconCss(variant) {
+    const family =
+            variant === 'rounded' ? 'Material Symbols Rounded' :
+                    variant === 'sharp'   ? 'Material Symbols Sharp'   :
+                            'Material Symbols Outlined';
+    return `font-family:'${family}';font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20;font-size:18px;line-height:1;font-style:normal;-webkit-font-smoothing:antialiased;`;
+  }
 
-    function setChip(outId, name, variant) {
-      const el = document.getElementById(outId);
-      el.innerHTML = name
-        ? `<span class="ic" style="${iconFont(name, variant)}">${name}</span>${name.replace(/_/g,' ')}`
-        : '<span class="empty">— no icon selected —</span>';
+  function setChip(outId, name, variant = 'outlined') {
+    const el = document.getElementById(outId);
+    el.innerHTML = name
+            ? `<span class="ic" style="${iconCss(variant)}">${name}</span>${name.replace(/_/g,' ')}`
+            : '<span class="empty">— no icon selected —</span>';
+  }
+
+  // ── Picker 1: auto theme, all variants ───────────────────────────
+  new MaterialSymbolsPicker(document.getElementById('p1'), {
+    theme: 'auto',
+    onChange: name => setChip('out1', name),
+  });
+
+  // ── Picker 2: dark + rounded only (no variant pills) ─────────────
+  const p2 = new MaterialSymbolsPicker(document.getElementById('p2'), {
+    theme: 'dark', variant: 'rounded', variants: ['rounded'],
+    onChange: name => setChip('out2', name, 'rounded'),
+  });
+  p2.setValue('star');
+  setChip('out2', 'star', 'rounded');
+
+  // ── Picker 3: light + outlined & sharp only ───────────────────────
+  new MaterialSymbolsPicker(document.getElementById('p3'), {
+    theme: 'light', variant: 'outlined', variants: ['outlined', 'sharp'],
+    onChange: name => setChip('out3', name),
+  });
+
+  // ── Picker 4 (p5): auto + sharp only (no variant pills) ───────────
+  const p5 = new MaterialSymbolsPicker(document.getElementById('p5'), {
+    theme: 'auto', variant: 'sharp', variants: ['sharp'],
+    onChange: name => setChip('out5', name, 'sharp'),
+  });
+  p5.setValue('settings');
+  setChip('out5', 'settings', 'sharp');
+
+  // ── Picker 5 (p4): form / button preview, outlined & rounded ─────
+  const p4 = new MaterialSymbolsPicker(document.getElementById('p4'), {
+    theme: 'auto', variants: ['outlined', 'rounded'],
+    onChange: updateBtn,
+  });
+  document.getElementById('btn-label').addEventListener('input', updateBtn);
+
+  function updateBtn() {
+    const label = document.getElementById('btn-label').value.trim() || 'Button';
+    const icon  = p4.getValue();
+    document.getElementById('btn-text').textContent = label;
+    const btnIcon = document.getElementById('btn-icon');
+    if (icon) {
+      btnIcon.style.cssText = iconCss(p4.opts.variant);
+      btnIcon.textContent = icon;
+      btnIcon.hidden = false;
+    } else {
+      btnIcon.hidden = true;
     }
-
-    // ── Picker 1: auto theme ──────────────────────────────────────────
-    new MaterialSymbolsPicker(document.getElementById('p1'), {
-      theme: 'auto',
-      onChange: name => setChip('out1', name),
-    });
-
-    // ── Picker 2: dark + rounded, pre-filled ──────────────────────────
-    const p2 = new MaterialSymbolsPicker(document.getElementById('p2'), {
-      theme: 'dark', variant: 'rounded',
-      onChange: name => setChip('out2', name, 'rounded'),
-    });
-    p2.setValue('star');
-    setChip('out2', 'star', 'rounded');
-
-    // ── Picker 3: light + sharp ───────────────────────────────────────
-    new MaterialSymbolsPicker(document.getElementById('p3'), {
-      theme: 'light', variant: 'sharp',
-      onChange: name => setChip('out3', name, 'sharp'),
-    });
-
-    // ── Picker 4: form / button preview ──────────────────────────────
-    const p4 = new MaterialSymbolsPicker(document.getElementById('p4'), {
-      theme: 'auto',
-      onChange: updateBtn,
-    });
-    document.getElementById('btn-label').addEventListener('input', updateBtn);
-
-    function updateBtn() {
-      const label = document.getElementById('btn-label').value.trim() || 'Button';
-      const icon  = p4.getValue();
-      document.getElementById('btn-text').textContent = label;
-      const btnIcon = document.getElementById('btn-icon');
-      if (icon) {
-        btnIcon.textContent = icon;
-        btnIcon.hidden = false;
-      } else {
-        btnIcon.hidden = true;
-      }
-    }
-  </script>
+  }
+</script>
 </body>
 </html>
