@@ -324,6 +324,15 @@
           ).join('')
           : '';
 
+      let filterRowHtml = '';
+      if (showVariantPills && showFillPills) {
+        filterRowHtml = `
+        <div class="msp-filter-row">
+          ${variantPillsHtml}
+          ${fillPillsHtml}
+        </div>`;
+      }
+
       // Panel
       this._panel = document.createElement('div');
       this._panel.className = 'msp-panel';
@@ -338,10 +347,7 @@
           <span class="msp-count"></span>
           <button type="button" class="msp-theme-btn" aria-label="Toggle theme"></button>
         </div>
-        <div class="msp-filter-row">
-          ${variantPillsHtml}
-          ${fillPillsHtml}
-        </div>
+        ${filterRowHtml}
         <div class="msp-category-row" hidden></div>
         <div class="msp-grid" role="listbox" aria-label="${this._s.searchLabel}"></div>
         <div class="msp-footer">
