@@ -1,5 +1,4 @@
 /*!
- * material-symbols-picker.js  v1.0.1
  * Zero-dependency icon picker for the Material Symbols variable font.
  *
  * USAGE
@@ -78,9 +77,40 @@
     toggleLight:     'Switch to light',
   };
 
-  /* ── Google Fonts metadata fetch (shared across all instances) ─────────── */
   let _iconCache = null;        // { icons: IconMeta[], categories: string[] }
   let _fetchPromise = null;     // in-flight promise
+
+  let _fontReadyPromise = null;
+  function _waitForFonts() {
+    if (_fontReadyPromise) return _fontReadyPromise;
+    _fontReadyPromise = (document.fonts?.ready ?? Promise.resolve()).then(() => {});
+    return _fontReadyPromise;
+  }
+
+  /* ── Canvas-based broken-icon detection (cached per font-family) ────────
+   * Material Symbols renders icon names as ligatures → single glyph ≈ fontSize px wide.
+   * If a name has no ligature the font falls back to individual chars → much wider.
+   * We measure with canvas (one reflow-free pass) and cache the result.           */
+  let _measureCanvas   = null;
+  const _brokenIconCache = new Map();   // fontFamily → Set<name>
+
+  function _detectBrokenIcons(icons, variant) {
+    const family = _fontFamily(variant);
+    if (_brokenIconCache.has(family)) return _brokenIconCache.get(family);
+
+    if (!_measureCanvas) _measureCanvas = document.createElement('canvas');
+    const ctx      = _measureCanvas.getContext('2d');
+    const fontSize = 18;
+    ctx.font       = `400 ${fontSize}px '${family}'`;
+
+    const threshold = fontSize * 1.6;   // valid glyph ≈ 18 px; bare text >> 18 px
+    const broken    = new Set();
+    for (const icon of icons) {
+      if (ctx.measureText(icon.name).width > threshold) broken.add(icon.name);
+    }
+    _brokenIconCache.set(family, broken);
+    return broken;
+  }
 
   function _fetchGoogleIcons() {
     if (_iconCache) return Promise.resolve(_iconCache);
@@ -132,10 +162,9 @@
       + 'family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
       + '&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
       + '&family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200'
-      + '&display=swap';
+      + '&display=block';
     document.head.appendChild(link);
   }
-
   function _injectStyles() {
     _injectGoogleFontsLink();
 
@@ -188,6 +217,7 @@
 .msp-footer-name[data-empty]{color:var(--msp-subtle)}
 .msp-clear-btn{flex-shrink:0;background:transparent;border:1px solid var(--msp-border);color:var(--msp-muted);border-radius:6px;padding:3px 10px;font-size:11px;font-family:inherit;cursor:pointer;transition:border-color .12s,color .12s}
 .msp-clear-btn:hover{border-color:#ef4444;color:#ef4444}
+.msp-fonts-pending .msp-trigger-caret,.msp-fonts-pending .msp-trigger-icon,.msp-fonts-pending .msp-search-icon,.msp-fonts-pending .msp-theme-btn{visibility:hidden}
     `;
     document.head.appendChild(style);
   }
@@ -267,6 +297,7 @@
       // Wrapper
       const wrap = document.createElement('div');
       wrap.className = 'msp-wrap';
+      wrap.classList.add('msp-fonts-pending');   // hidden until font ready
 
       if (this._nativeInput) {
         this._nativeInput.parentNode.insertBefore(wrap, this._nativeInput);
@@ -350,7 +381,8 @@
         btn.addEventListener('click', () => {
           this.opts.variant = btn.dataset.variant;
           this._syncPillStates();
-          this._renderGrid();
+          this._refilterByVariant();
+          this._applyFilters();
           this._updateTrigger();
         });
       });
@@ -393,41 +425,59 @@
     /* ── Icon data loading ───────────────────────────────────────────────── */
     _loadIcons() {
       if (this.opts.icons) {
-        // Custom list supplied directly — no fetch needed
-        this._setIconData(
-          this.opts.icons.map(n => ({ name: n, categories: [], tags: [] })),
-          []
-        );
+        _waitForFonts().then(() => {
+          this._wrap.classList.remove('msp-fonts-pending');
+          this._setIconData(
+              this.opts.icons.map(n => ({ name: n, categories: [], tags: [] })),
+              []
+          );
+        });
         return;
       }
 
       if (!this.opts.fetchIcons) {
-        this._setIconData(
-          FALLBACK_ICONS.map(n => ({ name: n, categories: [], tags: [] })),
-          []
-        );
+        _waitForFonts().then(() => {
+          this._wrap.classList.remove('msp-fonts-pending');
+          this._setIconData(
+              FALLBACK_ICONS.map(n => ({ name: n, categories: [], tags: [] })),
+              []
+          );
+        });
         return;
       }
 
       // Show loading message if panel is opened before fetch completes
       this._gridEl.innerHTML = `<div class="msp-loading">${this._s.loading}</div>`;
 
-      _fetchGoogleIcons()
-        .then(({ icons, categories }) => {
-          this._setIconData(icons, categories);
-        })
-        .catch(() => {
-          this._setIconData(
-            FALLBACK_ICONS.map(n => ({ name: n, categories: [], tags: [] })),
-            []
-          );
-        });
+      Promise.all([_fetchGoogleIcons(), _waitForFonts()])
+          .then(([{ icons, categories }]) => {
+            this._wrap.classList.remove('msp-fonts-pending');
+            this._setIconData(icons, categories);
+          })
+          .catch(() => {
+            _waitForFonts().then(() => {
+              this._wrap.classList.remove('msp-fonts-pending');
+              this._setIconData(
+                  FALLBACK_ICONS.map(n => ({ name: n, categories: [], tags: [] })),
+                  []
+              );
+            });
+          });
+    }
+
+    /* ── Re-filter broken icons when variant changes ─────────────────────── */
+    _refilterByVariant() {
+      if (!this._sourceIcons?.length) return;
+      const broken   = _detectBrokenIcons(this._sourceIcons, this.opts.variant);
+      this._allIcons = this._sourceIcons.filter(i => !broken.has(i.name));
     }
 
     _setIconData(icons, categories) {
-      this._allIcons   = icons;
-      this._categories = categories;
-      this._filtered   = [...icons];
+      this._sourceIcons = icons;                                      // full unfiltered list
+      const broken      = _detectBrokenIcons(icons, this.opts.variant);
+      this._allIcons    = icons.filter(i => !broken.has(i.name));
+      this._categories  = categories;
+      this._filtered    = [...this._allIcons];
 
       if (categories.length) this._buildCategorySelect();
 
@@ -558,7 +608,7 @@
 
         // Collect rendered row indices
         const rendered = new Set(
-          [...spacer.querySelectorAll('.msp-grid-row')].map(r => Number(r.dataset.r))
+            [...spacer.querySelectorAll('.msp-grid-row')].map(r => Number(r.dataset.r))
         );
 
         // Add missing rows
@@ -594,8 +644,8 @@
             });
             btn.addEventListener('mouseleave', () => {
               this._footerName.textContent = this._value
-                ? this._value.replace(/_/g, ' ')
-                : '—';
+                  ? this._value.replace(/_/g, ' ')
+                  : '—';
               if (!this._value) this._footerName.dataset.empty = '';
             });
             btn.addEventListener('click', () => {
@@ -705,7 +755,7 @@
      */
     static init(selector, opts = {}) {
       return [...document.querySelectorAll(selector)]
-        .map(el => new MaterialSymbolsPicker(el, opts));
+          .map(el => new MaterialSymbolsPicker(el, opts));
     }
   }
 
