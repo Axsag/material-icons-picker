@@ -3,7 +3,7 @@
 
 A lightweight, **zero-dependency** JavaScript icon picker designed for the [Material Symbols](https://fonts.google.com/icons) variable font.
 
-This picker dynamically fetches the latest metadata directly from Google Fonts, providing access to over 2,500+ icons with full-text search, category filtering, and support for variable font axes (Fill, Weight, Grade, Optical Size).
+This picker provides access to over 2,000+ icons with full-text search, category filtering, and support for variable font axes (Fill, Weight, Grade, Optical Size).
 
 **[🌐 Live Demo & Documentation](https://axsag.github.io/material-icons-picker/)**
 
@@ -12,7 +12,6 @@ This picker dynamically fetches the latest metadata directly from Google Fonts, 
 ## ✨ Features
 
 * 📦 **Zero Dependencies**: Pure Vanilla JS. No jQuery, no extra bloat.
-* 🌐 **Dynamic Metadata**: Fetches the official Google Fonts icon manifest so you always have the newest icons.
 * 🎨 **Variable Font Support**: Toggle between **Outlined**, **Rounded**, and **Sharp** variants natively. Restrict to a subset with the `variants` option — only the fonts you actually need are fetched.
 * 🙈 **Broken Icon Filtering**: Icons present in metadata but missing from the font file are automatically detected and hidden.
 * 🌓 **Smart Theming**: Built-in Light and Dark modes, plus `auto` mode (follows system settings).
