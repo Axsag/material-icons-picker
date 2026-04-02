@@ -280,7 +280,7 @@ picker.<span class="fn">destroy</span>();         <span class="cm">// tear down<
 
   // ── Picker 2: dark + rounded only (no variant pills) ─────────────
   const p2 = new MaterialSymbolsPicker(document.getElementById('p2'), {
-    theme: 'dark', variant: 'rounded', variants: ['rounded'],
+    theme: 'dark', variant: 'rounded', variants: ['rounded'], fills: [0],
     onChange: name => setChip('out2', name, 'rounded'),
   });
   p2.setValue('star');
@@ -294,7 +294,7 @@ picker.<span class="fn">destroy</span>();         <span class="cm">// tear down<
 
   // ── Picker 4 (p5): auto + sharp only (no variant pills) ───────────
   const p5 = new MaterialSymbolsPicker(document.getElementById('p5'), {
-    theme: 'auto', variant: 'sharp', variants: ['sharp'],
+    theme: 'auto', variant: 'sharp', variants: ['sharp'], fills: [0],
     onChange: name => setChip('out5', name, 'sharp'),
   });
   p5.setValue('settings');

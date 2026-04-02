@@ -61,18 +61,19 @@ const picker = new MaterialSymbolsPicker(el, {
 
 ## ⚙️ Options
 
-| Option | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `variant` | `string` | `'outlined'` | The active Material Symbols style: `'outlined'`, `'rounded'`, or `'sharp'`. |
-| `variants` | `string[]` | `['outlined','rounded','sharp']` | Which variants to offer in the picker UI. When only one is given the variant pills are hidden and only that font is fetched. |
-| `fill` | `number` | `0` | Fill axis (0 for stroke, 1 for solid). |
-| `weight` | `number` | `400` | Font weight (100 through 700). |
-| `grade` | `number` | `0` | Weight fine-tuning (-25, 0, 200). |
-| `size` | `number` | `24` | Icon size in pixels for the trigger preview. |
-| `theme` | `string` | `'auto'` | Color mode: `'light'`, `'dark'`, or `'auto'`. |
-| `fetchIcons`| `boolean`| `true` | Fetch the full metadata from Google (false uses a small fallback list). |
-| `icons` | `string[]` | `null` | Provide a custom icon list directly, skipping the fetch entirely. |
-| `onChange` | `function`| `null` | Callback function: `(name) => { ... }`. |
+| Option       | Type       | Default                          | Description                                                                                                                  |
+|:-------------|:-----------|:---------------------------------|:-----------------------------------------------------------------------------------------------------------------------------|
+| `variant`    | `string`   | `'outlined'`                     | The active Material Symbols style: `'outlined'`, `'rounded'`, or `'sharp'`.                                                  |
+| `variants`   | `string[]` | `['outlined','rounded','sharp']` | Which variants to offer in the picker UI. When only one is given the variant pills are hidden and only that font is fetched. |
+| `fill`       | `number`   | `0`                              | Fill axis (0 for stroke, 1 for solid).                                                                                       |
+| `fills`      | `number[]` | `[0,1]`                          | Which fills to offer in the picker UI. When only one is given the fill pills are hidden.       |
+| `weight`     | `number`   | `400`                            | Font weight (100 through 700).                                                                                               |
+| `grade`      | `number`   | `0`                              | Weight fine-tuning (-25, 0, 200).                                                                                            |
+| `size`       | `number`   | `24`                             | Icon size in pixels for the trigger preview.                                                                                 |
+| `theme`      | `string`   | `'auto'`                         | Color mode: `'light'`, `'dark'`, or `'auto'`.                                                                                |
+| `fetchIcons` | `boolean`  | `true`                           | Fetch the full metadata from Google (false uses a small fallback list).                                                      |
+| `icons`      | `string[]` | `null`                           | Provide a custom icon list directly, skipping the fetch entirely.                                                            |
+| `onChange`   | `function` | `null`                           | Callback function: `(name) => { ... }`.                                                                                      |
 
 ---
 
@@ -108,10 +109,12 @@ new MaterialSymbolsPicker(el, {
 By default the picker offers all three variants via toggle pills. You can narrow this down:
 
 ```javascript
-// Lock to a single variant — pills disappear, only Rounded is fetched
+// Lock to a single variant — pills disappear, only Rounded Fill is fetched
 new MaterialSymbolsPicker(el, {
   variant:  'rounded',
   variants: ['rounded'],
+  fill: 1,
+  fills: [1]  
 });
 
 // Offer two variants — only those two fonts are fetched

@@ -10,8 +10,9 @@
  *
  * OPTIONS
  *   variant     'outlined' | 'rounded' | 'sharp'    default: 'outlined'
- *   variants    string[] – which variants to offer   default: ['outlined','rounded','sharp']
+ *   variants    string[] – which variants to offer  default: ['outlined','rounded','sharp']
  *   fill        0 | 1                               default: 0
+ *   fills       string[] - wich fills to offer      default: [0,1]
  *   weight      100 – 700                           default: 400
  *   grade       -25 | 0 | 200                       default: 0
  *   size        number (px, used in the trigger)    default: 24
@@ -234,6 +235,7 @@
         variant:    'outlined',
         variants:   ['outlined', 'rounded', 'sharp'],
         fill:       0,
+        fills:      [0,1],
         weight:     400,
         grade:      0,
         size:       24,
@@ -250,10 +252,16 @@
       this.opts.variants = (this.opts.variants || []).filter(v => VALID_VARIANTS.includes(v));
       if (!this.opts.variants.length) this.opts.variants = ['outlined'];
 
+      // Normalize fills
+      this.opts.fills = (this.opts.fills || []).filter(f => [0, 1].includes(Number(f)));
+      if (!this.opts.fills.length) this.opts.fills = [0];
+
       // Active variant must be in the allowed set; fall back to first
       if (!this.opts.variants.includes(this.opts.variant)) {
         this.opts.variant = this.opts.variants[0];
       }
+
+      if (!this.opts.fills.includes(this.opts.fill)) this.opts.fill = this.opts.fills[0];
 
       // Inject only the font families this instance actually needs
       _injectFontsForVariants(this.opts.variants);
@@ -309,6 +317,13 @@
       ).join('') + '<div class="msp-filter-sep"></div>'
           : '';
 
+      const showFillPills = this.opts.fills.length > 1;
+      const fillPillsHtml = showFillPills
+          ? this.opts.fills.map(f =>
+              `<button type="button" class="msp-pill" data-fill="${f}">${Number(f) === 1 ? 'Fill' : 'Line'}</button>`
+          ).join('')
+          : '';
+
       // Panel
       this._panel = document.createElement('div');
       this._panel.className = 'msp-panel';
@@ -325,8 +340,7 @@
         </div>
         <div class="msp-filter-row">
           ${variantPillsHtml}
-          <button type="button" class="msp-pill" data-fill="0">Line</button>
-          <button type="button" class="msp-pill" data-fill="1">Fill</button>
+          ${fillPillsHtml}
         </div>
         <div class="msp-category-row" hidden></div>
         <div class="msp-grid" role="listbox" aria-label="${this._s.searchLabel}"></div>
