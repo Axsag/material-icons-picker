@@ -1,3 +1,4 @@
+[![](https://data.jsdelivr.com/v1/package/gh/Axsag/material-icons-picker/badge)](https://www.jsdelivr.com/package/gh/Axsag/material-icons-picker)
 # Material Symbols Picker
 
 A lightweight, **zero-dependency** JavaScript icon picker designed for the [Material Symbols](https://fonts.google.com/icons) variable font.
