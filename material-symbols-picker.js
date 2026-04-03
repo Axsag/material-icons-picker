@@ -1,4 +1,4 @@
-/*!
+/*
  * Zero-dependency icon picker for the Material Symbols variable font.
  *
  * USAGE
