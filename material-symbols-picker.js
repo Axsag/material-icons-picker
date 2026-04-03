@@ -1,18 +1,18 @@
 /*
  * Zero-dependency icon picker for the Material Symbols variable font.
  *
- * USAGE
+ * USAGE:
  *   // Auto-init via attribute
  *   MaterialSymbolsPicker.init('[data-icon-picker]');
  *
  *   // Manual
  *   const picker = new MaterialSymbolsPicker(inputElement, options);
  *
- * OPTIONS
+ * OPTIONS:
  *   variant     'outlined' | 'rounded' | 'sharp'    default: 'outlined'
  *   variants    string[] – which variants to offer  default: ['outlined','rounded','sharp']
  *   fill        0 | 1                               default: 0
- *   fills       string[] - wich fills to offer      default: [0,1]
+ *   fills       string[] - which fills to offer      default: [0,1]
  *   weight      100 – 700                           default: 400
  *   grade       -25 | 0 | 200                       default: 0
  *   size        number (px, used in the trigger)    default: 24
@@ -22,7 +22,7 @@
  *   onChange    function(name: string)              default: null
  *   strings     Partial<typeof DEFAULT_STRINGS>     default: {}
  *
- * PUBLIC API
+ * PUBLIC API:
  *   picker.getValue()        → string
  *   picker.setValue(name)
  *   picker.setTheme(theme)   'light' | 'dark' | 'auto'
