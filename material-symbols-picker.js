@@ -79,6 +79,28 @@
     toggleLight:     'Switch to light',
   };
 
+  /* ── Default category labels (value → display string) ────────────────── */
+  const DEFAULT_CATEGORY_LABELS = {
+    action:        'Action',
+    alert:         'Alert',
+    av:            'Audio / Video',
+    communication: 'Communication',
+    content:       'Content',
+    device:        'Device',
+    editor:        'Editor',
+    file:          'File',
+    hardware:      'Hardware',
+    home:          'Home',
+    image:         'Image',
+    maps:          'Maps',
+    navigation:    'Navigation',
+    notification:  'Notification',
+    places:        'Places',
+    search:        'Search',
+    social:        'Social',
+    toggle:        'Toggle',
+  };
+
   let _iconCache = null;        // { icons: IconMeta[], categories: string[] }
   let _fetchPromise = null;     // in-flight promise
 
@@ -266,7 +288,8 @@
       // Inject only the font families this instance actually needs
       _injectFontsForVariants(this.opts.variants);
 
-      this._s      = { ...DEFAULT_STRINGS, ...this.opts.strings };
+      this._s              = { ...DEFAULT_STRINGS, ...this.opts.strings };
+      this._categoryLabels = { ...DEFAULT_CATEGORY_LABELS, ...(this.opts.strings.categories || {}) };
       this._value  = this._nativeInput?.value || '';
       this._open   = false;
       this._theme  = _resolveTheme(this.opts.theme);
@@ -501,7 +524,8 @@
       this._categories.forEach(cat => {
         const opt = document.createElement('option');
         opt.value       = cat;
-        opt.textContent = cat.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        opt.textContent = this._categoryLabels[cat]
+            ?? cat.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
         sel.appendChild(opt);
       });
 
@@ -700,9 +724,9 @@
     /* ── Pill sync ───────────────────────────────────────────────────────── */
     _syncPillStates() {
       this._panel.querySelectorAll('[data-variant]').forEach(b =>
-        b.classList.toggle('is-active', b.dataset.variant === this.opts.variant));
+          b.classList.toggle('is-active', b.dataset.variant === this.opts.variant));
       this._panel.querySelectorAll('[data-fill]').forEach(b =>
-        b.classList.toggle('is-active', Number(b.dataset.fill) === this.opts.fill));
+          b.classList.toggle('is-active', Number(b.dataset.fill) === this.opts.fill));
     }
 
     /* ════════════════════════════════════════════════════════════════════

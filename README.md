@@ -40,8 +40,8 @@ The simplest way to start is by adding a `data-icon-picker` attribute to your in
 <input type="text" data-icon-picker value="face">
 
 <script>
-  // Initializes all inputs with the data attribute
-  MaterialSymbolsPicker.init('[data-icon-picker]');
+    // Initializes all inputs with the data attribute
+    MaterialSymbolsPicker.init('[data-icon-picker]');
 </script>
 ```   
 
@@ -94,14 +94,48 @@ You can customize the UI labels by passing a `strings` object during initializat
 ```javascript
 new MaterialSymbolsPicker(el, {
   strings: {
-    placeholder: 'Select Icon...',
+    placeholder:       'Select Icon...',
     searchPlaceholder: 'Search...',
-    noResults: 'Nothing found',
-    allCategories: 'All Categories',
-    clear: 'Clear'
+    noResults:         'Nothing found',
+    allCategories:     'All Categories',
+    clear:             'Clear',
   }
 });
 ```
+
+### Translating category names
+
+Pass a `categories` map inside `strings` to override individual category labels. The key is the raw category value returned by the API; any category not listed falls back to its default English label.
+
+```javascript
+new MaterialSymbolsPicker(el, {
+  strings: {
+    allCategories: 'Toutes les catégories',
+    categories: {
+      action:        'Action',
+      alert:         'Alerte',
+      av:            'Audio / Vidéo',
+      communication: 'Communication',
+      content:       'Contenu',
+      device:        'Appareil',
+      editor:        'Éditeur',
+      file:          'Fichier',
+      hardware:      'Matériel',
+      home:          'Maison',
+      image:         'Image',
+      maps:          'Cartes',
+      navigation:    'Navigation',
+      notification:  'Notification',
+      places:        'Lieux',
+      search:        'Recherche',
+      social:        'Social',
+      toggle:        'Bascule',
+    },
+  },
+});
+```
+
+The full list of known category keys: `action`, `alert`, `av`, `communication`, `content`, `device`, `editor`, `file`, `hardware`, `home`, `image`, `maps`, `navigation`, `notification`, `places`, `search`, `social`, `toggle`. Any category key not present in your map (or added by Google in a future update) is auto-formatted as a safe fallback (`some_key` → `Some Key`).
 
 ---
 
@@ -112,15 +146,15 @@ By default the picker offers all three variants via toggle pills. You can narrow
 ```javascript
 // Lock to a single variant — pills disappear, only Rounded Fill is fetched
 new MaterialSymbolsPicker(el, {
-  variant:  'rounded',
-  variants: ['rounded'],
-  fill: 1,
-  fills: [1]  
+    variant:  'rounded',
+    variants: ['rounded'],
+    fill: 1,
+    fills: [1]
 });
 
 // Offer two variants — only those two fonts are fetched
 new MaterialSymbolsPicker(el, {
-  variants: ['outlined', 'sharp'],
+    variants: ['outlined', 'sharp'],
 });
 ```
 
