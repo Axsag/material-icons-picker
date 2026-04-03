@@ -1,0 +1,35 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Push to releases branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+  
+          mkdir ../build_assets
+          cp material-design-icons.json material-symbols-picker.js material-symbols-picker.min.js ../build_assets/
+  
+          git fetch origin releases:releases || git checkout --orphan releases
+          git checkout releases
+  
+          git rm -rf .
+          cp ../build_assets/* .
+  
+          git add .
+          # Only commit if there are actual changes to avoid errors
+          git diff-index --quiet HEAD || git commit -m "Release ${{ github.ref_name }}"
+          git push origin releases --force
