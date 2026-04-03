@@ -12,7 +12,7 @@
  *   variant     'outlined' | 'rounded' | 'sharp'    default: 'outlined'
  *   variants    string[] – which variants to offer  default: ['outlined','rounded','sharp']
  *   fill        0 | 1                               default: 0
- *   fills       string[] - wich fills to offer      default: [0,1]
+ *   fills       string[] - which fills to offer      default: [0,1]
  *   weight      100 – 700                           default: 400
  *   grade       -25 | 0 | 200                       default: 0
  *   size        number (px, used in the trigger)    default: 24
